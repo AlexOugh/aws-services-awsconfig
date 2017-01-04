@@ -4,7 +4,7 @@ phases:
     commands:
       - npm install time
       - aws cloudformation package \
-         --template-file samTemplate.yaml \
+         --template-file template.basic.yaml \
          --s3-bucket sgas.particles-awsconfig.089476987273.us-east-1 \
          --output-template-file NewSamTemplate.yaml
 artifacts:
