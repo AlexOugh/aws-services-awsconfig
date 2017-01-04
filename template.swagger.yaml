@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API interfaces and corresponding lambda functions for awsconfig.
+Resources:
+  LambdaFunctionIAMRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: "InlinePolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "config:*"
+                      - "iam:*"
+                      - "lambda:*"
+                      - "sns:Create*"
+                      - "sns:Publish*"
+                      - "sns:Get*"
+                      - "sns:List*"
+                      - "sns:Delete*"
+                      - "sns:Subscribe*"
+                      - "tag:Get*"
+                    Resource: "*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "logs:CreateLogGroup"
+                      - "logs:CreateLogStream"
+                      - "logs:PutLogEvents"
+                    Resource: "arn:aws:logs:*:*:*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:PutObject*"
+                    Resource: "arn:aws:s3:::*.awsconfig/AWSLogs/*/*"
+                    Condition:
+                      StringLike:
+                        s3:x-amz-acl: "bucket-owner-full-control"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:GetBucketAcl"
+                    Resource: "arn:aws:s3:::*.awsconfig"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "s3:ListAllMyBuckets"
+                      - "s3:CreateBucket"
+                    Resource: "*"
+
+  GetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: awsconfig/index_checker.handler
+      Runtime: nodejs4.3
+      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Environment:
+        Variables:
+          bucketNamePostfix : ".awsconfig"
+          topicName : "awsconfig-topic"
+          saverFuncName : "notificationalert_saver"
+          assumeRolePolicyName : "awsconfig_assume_role_policy"
+          roleName : "awsconfig-setup-role"
+          inlinePolicyName : "awsconfig_setup_policy"
+          deliveryChannelName : "default"
+          configRecorderName : "default"
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /awsconfig
+            Method: get
+
+  PutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: awsconfig/index_enabler.handler
+      Runtime: nodejs4.3
+      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Environment:
+        Variables:
+          bucketNamePostfix : ".awsconfig"
+          topicName : "awsconfig-topic"
+          saverFuncName : "notificationalert_saver"
+          assumeRolePolicyName : "awsconfig_assume_role_policy"
+          roleName : "awsconfig-setup-role"
+          inlinePolicyName : "awsconfig_setup_policy"
+          deliveryChannelName : "default"
+          configRecorderName : "default"
+      Events:
+        PutResource:
+          Type: Api
+          Properties:
+            Path: /awsconfig
+            Method: post
+
+  DeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: awsconfig/index_remover.handler
+      Runtime: nodejs4.3
+      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Environment:
+        Variables:
+          bucketNamePostfix : ".awsconfig"
+          topicName : "awsconfig-topic"
+          saverFuncName : "notificationalert_saver"
+          assumeRolePolicyName : "awsconfig_assume_role_policy"
+          roleName : "awsconfig-setup-role"
+          inlinePolicyName : "awsconfig_setup_policy"
+          deliveryChannelName : "default"
+          configRecorderName : "default"
+      Events:
+        DeleteResource:
+          Type: Api
+          Properties:
+            Path: /awsconfig
+            Method: delete
