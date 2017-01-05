@@ -99,6 +99,7 @@ Resources:
                       - "dynamodb:GetShardIterator"
                       - "dynamodb:DescribeStream"
                       - "dynamodb:ListStreams"
+                    Resource: "*"
 
   GetFunction:
     Type: AWS::Serverless::Function
