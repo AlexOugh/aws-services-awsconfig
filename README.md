@@ -12,7 +12,7 @@ AWS Lambda functions to manage the AWSConfig Service
 
 ## How To Update Lambda Function Codes
 
-    $ run_update_codes
+    $ ./run_update_codes
 
 
 ## How To Test Lambda Functions

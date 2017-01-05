@@ -3,7 +3,7 @@ var gulp = require('gulp'),
 vfs = require('vinyl-fs'),
 zip = require('gulp-zip');
 
-vfs.src(['index.js', 'lib/flow_controller.js', 'lib/aws/*.js', 'json'],{cwd:'.', base:'.'})
+vfs.src(['index.js', 'aws-services-lib/flow_controller.js', 'aws-services-lib/aws/*.js', 'json'],{cwd:'.', base:'.'})
 .pipe(zip('awsconfig.zip'))
 .pipe(gulp.dest('.'))
 .on('end', function(err, data) {
