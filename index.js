@@ -61,7 +61,7 @@ exports.enable = (event, context, callback) => {
     bucketName : bucketName,
     topicName : topicName,
     functionName : functionName,
-    statementId: event.statementId, //unique string, some uuid from api
+    statementId: "sns_invoke",
     assumeRolePolicyName: assumeRolePolicyName,
     assumeRolePolicyDocument: assumeRolePolicyDocument,
     roleName : roleName,
@@ -125,19 +125,23 @@ exports.disable = (event, context, callback) => {
   var aws_topic = new (require('./lib/aws/topic.js'))();
   var aws_config = new (require('./lib/aws/awsconfig.js'))();
   var aws_role = new (require('./lib/aws/role.js'))();
+  var aws_lambda = new (require('./lib/aws/lambda.js'))();
 
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
   var topicName = process.env.TOPIC_NAME;
   var roleName = process.env.ROLE_NAME + "-" + event.region;
-  var endpoint = process.env.SAVER_FUNCTION_ARN;
+  var functionName = process.env.SAVER_FUNCTION_NAME;
+  var saveFunctionArn = process.env.SAVER_FUNCTION_ARN;
 
   var input = {
     region: event.region,
     topicName : topicName,
     roleName : roleName,
     inlinePolicyName : inlinePolicyName,
+    functionName : functionName,
+    statementId: "sns_invoke",
     protocol: "lambda",
-    endpoint: endpoint
+    endpoint: saveFunctionArn
   };
 
   function succeeded(input) { callback(null, createResponse(200, true)); }
@@ -148,12 +152,12 @@ exports.disable = (event, context, callback) => {
     {func:aws_config.findRecorders, success:aws_config.findRecordersStatus, failure:aws_config.findChannels, error:errored},
     {func:aws_config.findRecordersStatus, success:aws_config.stopRecorder, failure:aws_config.findChannels, error:errored},
     {func:aws_config.stopRecorder, success:aws_config.findChannels, failure:failed, error:errored},
-    {func:aws_config.findChannels, success:aws_config.deleteChannel, failure:aws_topic.findTopic, error:errored},
-    {func:aws_config.deleteChannel, success:aws_topic.findTopic, failure:failed, error:errored},
-//    {func:aws_topic.findTopic, success:aws_topic.deleteTopic, failure:aws_role.findRoleByPrefix, error:errored},
-    {func:aws_topic.findTopic, success:aws_topic.isSubscribed, failure:aws_role.findRoleByPrefix, error:errored},
-    {func:aws_topic.isSubscribed, success:aws_topic.unsubscribe, failure:aws_topic.deleteTopic, error:errored},
-    {func:aws_topic.unsubscribe, success:aws_topic.deleteTopic, failure:aws_role.findRoleByPrefix, error:errored},
+    {func:aws_config.findChannels, success:aws_config.deleteChannel, failure:aws_lambda.removePermission, error:errored},
+    {func:aws_config.deleteChannel, success:aws_lambda.removePermission, failure:failed, error:errored},
+    {func:aws_lambda.removePermission, success:aws_topic.findTopic, failure:aws_topic.findTopic, error:aws_topic.findTopic},
+    {func:aws_topic.findTopic, success:aws_topic.listSubscriptions, failure:aws_role.findRoleByPrefix, error:errored},
+    {func:aws_topic.listSubscriptions, success:aws_topic.unsubscribeAll, failure:aws_topic.deleteTopic, error:errored},
+    {func:aws_topic.unsubscribeAll, success:aws_topic.deleteTopic, failure:aws_role.findRoleByPrefix, error:errored},
     {func:aws_topic.deleteTopic, success:aws_role.findRoleByPrefix, failure:failed, error:errored},
     {func:aws_role.findRoleByPrefix, success:aws_role.findInlinePolicy, failure:succeeded, error:errored},
     {func:aws_role.findInlinePolicy, success:aws_role.deleteInlinePolicy, failure:aws_role.findRole, error:errored},
@@ -163,6 +167,7 @@ exports.disable = (event, context, callback) => {
   aws_topic.flows = flows;
   aws_config.flows = flows;
   aws_role.flows = flows;
+  aws_lambda.flows = flows;
 
   flows[0].func(input);
 };

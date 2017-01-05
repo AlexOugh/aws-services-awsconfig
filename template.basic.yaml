@@ -116,7 +116,7 @@ Resources:
             Path: /awsconfig
             Method: get
 
-  PutFunction:
+  PostFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.enable
