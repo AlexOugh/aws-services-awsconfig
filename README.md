@@ -3,25 +3,21 @@
 
 AWS Lambda functions to manage the AWSConfig Service
 
+![aws-services][aws-services-image]
 
 ## How To Setup
 
-    $ make -e AWS_REGION=<region>
+    $ AWS CodePipeline, 'aws-services-awsconfig'
 
 
 ## How To Update Lambda Function Codes
 
-    $ make buildlambda
-
-
-## How To Remove Service
-
-    $ make clean -e AWS_REGION=<region>
+    $ run_update_codes
 
 
 ## How To Test Lambda Functions
 
-    $ cd test
-    $ node run_lambda <function_name>
-      where
-        <function_name> is 'one of 'index_checker', 'index_enabler' or 'index_remover'
+    $ cd tests
+    $ node test_xxx.js
+
+[aws-services-image]: ./docs/images/logo.png?raw=true
