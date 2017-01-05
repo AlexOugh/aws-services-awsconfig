@@ -97,7 +97,7 @@ Resources:
           INLINE_POLICY_NAME: "awsconfig_setup_policy"
           DELIVERY_CHANNEL_NAME: "default"
           CONFIG_RECORDER_NAME: "default"
-          TABLE_NAME: !Ref Table
+          TABLE_NAME: !Ref DynamoDBTable
       Events:
         PutResource:
           Type: Api
@@ -135,17 +135,25 @@ Resources:
       Timeout: 60
       Environment:
         Variables:
-          TABLE_NAME: !Ref Table
+          TABLE_NAME: !Ref DynamoDBTable
       Events:
         Stream:
           Type: DynamoDB
           Properties:
-            Stream: !GetAtt Table.Arn
+            Stream: !GetAtt Table.StreamArn
             StartingPosition: TRIM_HORIZON
-            BatchSize: 10
 
-  Table:
-    Type: AWS::Serverless::SimpleTable
-    ProvisionedThroughput:
-      ReadCapacityUnits: 5
-      WriteCapacityUnits: 5
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
