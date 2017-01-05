@@ -134,7 +134,6 @@ Resources:
           INLINE_POLICY_NAME: "awsconfig_setup_policy"
           DELIVERY_CHANNEL_NAME: "default"
           CONFIG_RECORDER_NAME: "default"
-          TABLE_NAME: !Ref DynamoDBTable
       Events:
         PutResource:
           Type: Api
@@ -173,12 +172,6 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoDBTable
-      Events:
-        Stream:
-          Type: DynamoDB
-          Properties:
-            Stream: !GetAtt DynamoDBTable.StreamArn
-            StartingPosition: TRIM_HORIZON
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -192,5 +185,3 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
