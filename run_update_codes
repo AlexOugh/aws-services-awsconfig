@@ -1,0 +1,16 @@
+
+aws lambda update-function-code \
+    --function-name aws-services-awsconfig-GetFunction-1A4URHHB641OA \
+    --zip-file fileb://awsconfig.zip
+
+aws lambda update-function-code \
+    --function-name aws-services-awsconfig-PostFunction-46374526HPWH \
+    --zip-file fileb://awsconfig.zip
+
+aws lambda update-function-code \
+    --function-name aws-services-awsconfig-DeleteFunction-8467ZTKHUBKD \
+    --zip-file fileb://awsconfig.zip
+
+aws lambda update-function-code \
+    --function-name aws-services-awsconfig-SaveAlertFunction-1XH3P7JWEEWP7 \
+    --zip-file fileb://awsconfig.zip
