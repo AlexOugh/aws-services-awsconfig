@@ -1,0 +1,3 @@
+[submodule "aws-services-lib"]
+	path = aws-services-lib
+	url = https://github.com/AlexOugh/aws-services-lib.git
