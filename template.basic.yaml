@@ -64,6 +64,42 @@ Resources:
                       - "s3:CreateBucket"
                     Resource: "*"
 
+  AlertLambdaFunctionIAMRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowAlertLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: "InlinePolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "logs:CreateLogGroup"
+                      - "logs:CreateLogStream"
+                      - "logs:PutLogEvents"
+                    Resource: "arn:aws:logs:*:*:*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "dynamodb:GetRecords"
+                      - "dynamodb:GetShardIterator"
+                      - "dynamodb:DescribeStream"
+                      - "dynamodb:ListStreams"
+
   GetFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -131,7 +167,7 @@ Resources:
       Handler: index.save_alert
       Runtime: nodejs4.3
       CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
-      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Role: !GetAtt AlertLambdaFunctionIAMRole.Arn
       Timeout: 60
       Environment:
         Variables:
