@@ -129,6 +129,7 @@ Resources:
           BUCKET_NAME_POSTFIX: ".awsconfig"
           TOPIC_NAME: "awsconfig-topic"
           SAVER_FUNCTION_NAME: !Ref SaveAlertFunction
+          SAVER_FUNCTION_ARN: !GetAtt SaveAlertFunction.Arn
           ASSUME_ROLE_POLICY_NAME: "awsconfig_assume_role_policy"
           ROLE_NAME: "awsconfig-setup-role"
           INLINE_POLICY_NAME: "awsconfig_setup_policy"
@@ -154,6 +155,7 @@ Resources:
           TOPIC_NAME: "awsconfig-topic"
           ROLE_NAME: "awsconfig-setup-role"
           INLINE_POLICY_NAME: "awsconfig_setup_policy"
+          SAVER_FUNCTION_ARN: !GetAtt SaveAlertFunction.Arn
       Events:
         DeleteResource:
           Type: Api

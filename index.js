@@ -45,6 +45,7 @@ exports.enable = (event, context, callback) => {
   var bucketName = event.account + process.env.BUCKET_NAME_POSTFIX + "." + event.region;
   var topicName = process.env.TOPIC_NAME;
   var functionName = process.env.SAVER_FUNCTION_NAME;
+  var endpoint = process.env.SAVER_FUNCTION_ARN;
   var roleName = process.env.ROLE_NAME + "-" + event.region;
 
   var fs = require("fs");
@@ -71,7 +72,9 @@ exports.enable = (event, context, callback) => {
     roleArn : null,
     topicArn : null,
     sourceArn : null,
-    inlinePolicyDoc : null
+    inlinePolicyDoc : null,
+    protocol: "lambda",
+    endpoint: endpoint
   };
 
   function resetAuth(input) {
@@ -103,7 +106,8 @@ exports.enable = (event, context, callback) => {
     {func:aws_config.findRecordersStatus, success:resetAuth, failure:aws_config.startRecorder, error:errored},
     {func:aws_config.startRecorder, success:resetAuth, failure:failed, error:errored},
     {func:resetAuth, success:aws_lambda.findFunction, failure:failed, error:errored},
-    {func:aws_lambda.findFunction, success:aws_lambda.addPermission, failure:failed, error:errored},
+    {func:aws_lambda.findFunction, success:aws_topic.isSubscribed, failure:failed, error:errored},
+    {func:aws_topic.isSubscribed, success:succeeded, failure:aws_lambda.addPermission, error:errored},
     {func:aws_lambda.addPermission, success:aws_topic.subscribeLambda, failure:failed, error:errored},
     {func:aws_topic.subscribeLambda, success:succeeded, failure:failed, error:errored},
   ];
@@ -125,12 +129,15 @@ exports.disable = (event, context, callback) => {
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
   var topicName = process.env.TOPIC_NAME;
   var roleName = process.env.ROLE_NAME + "-" + event.region;
+  var endpoint = process.env.SAVER_FUNCTION_ARN;
 
   var input = {
     region: event.region,
     topicName : topicName,
     roleName : roleName,
     inlinePolicyName : inlinePolicyName,
+    protocol: "lambda",
+    endpoint: endpoint
   };
 
   function succeeded(input) { callback(null, createResponse(200, true)); }
