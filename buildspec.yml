@@ -3,11 +3,14 @@ phases:
   install:
     commands:
       - npm install time
+      - npm install
+      - node run_zip
+      - aws s3 cp awsconfig.zip s3://sgas.sam.aws-services-awsconfig
       - aws cloudformation package
          --template-file template.basic.yaml
-         --s3-bucket sgas.particles-awsconfig.089476987273.us-east-1
-         --output-template-file NewSamTemplate.yaml
+         --s3-bucket sgas.sam.aws-services-awsconfig
+         --output-template-file samTemplate.yaml
 artifacts:
   type: zip
   files:
-    - NewSamTemplate.yaml
+    - samTemplate.yaml

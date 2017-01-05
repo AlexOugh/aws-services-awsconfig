@@ -67,20 +67,11 @@ Resources:
   GetFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: awsconfig/index_checker.handler
+      Handler: index.check
       Runtime: nodejs4.3
-      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
       Role: !GetAtt LambdaFunctionIAMRole.Arn
-      Environment:
-        Variables:
-          bucketNamePostfix : ".awsconfig"
-          topicName : "awsconfig-topic"
-          saverFuncName : "notificationalert_saver"
-          assumeRolePolicyName : "awsconfig_assume_role_policy"
-          roleName : "awsconfig-setup-role"
-          inlinePolicyName : "awsconfig_setup_policy"
-          deliveryChannelName : "default"
-          configRecorderName : "default"
+      Timeout: 60
       Events:
         GetResource:
           Type: Api
@@ -91,20 +82,22 @@ Resources:
   PutFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: awsconfig/index_enabler.handler
+      Handler: index.enable
       Runtime: nodejs4.3
-      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
       Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Timeout: 60
       Environment:
         Variables:
-          bucketNamePostfix : ".awsconfig"
-          topicName : "awsconfig-topic"
-          saverFuncName : "notificationalert_saver"
-          assumeRolePolicyName : "awsconfig_assume_role_policy"
-          roleName : "awsconfig-setup-role"
-          inlinePolicyName : "awsconfig_setup_policy"
-          deliveryChannelName : "default"
-          configRecorderName : "default"
+          BUCKET_NAME_POSTFIX: ".awsconfig"
+          TOPIC_NAME: "awsconfig-topic"
+          SAVER_FUNCTION_NAME: !Ref SaveAlertFunction
+          ASSUME_ROLE_POLICY_NAME: "awsconfig_assume_role_policy"
+          ROLE_NAME: "awsconfig-setup-role"
+          INLINE_POLICY_NAME: "awsconfig_setup_policy"
+          DELIVERY_CHANNEL_NAME: "default"
+          CONFIG_RECORDER_NAME: "default"
+          TABLE_NAME: !Ref Table
       Events:
         PutResource:
           Type: Api
@@ -115,23 +108,44 @@ Resources:
   DeleteFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: awsconfig/index_remover.handler
+      Handler: index.disable
       Runtime: nodejs4.3
-      CodeUri: s3://sgas.particles-awsconfig.089476987273.us-east-1/particles/assets/awsconfig.zip
+      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
       Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Timeout: 60
       Environment:
         Variables:
-          bucketNamePostfix : ".awsconfig"
-          topicName : "awsconfig-topic"
-          saverFuncName : "notificationalert_saver"
-          assumeRolePolicyName : "awsconfig_assume_role_policy"
-          roleName : "awsconfig-setup-role"
-          inlinePolicyName : "awsconfig_setup_policy"
-          deliveryChannelName : "default"
-          configRecorderName : "default"
+          TOPIC_NAME: "awsconfig-topic"
+          ROLE_NAME: "awsconfig-setup-role"
+          INLINE_POLICY_NAME: "awsconfig_setup_policy"
       Events:
         DeleteResource:
           Type: Api
           Properties:
             Path: /awsconfig
             Method: delete
+
+  SaveAlertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.save_alert
+      Runtime: nodejs4.3
+      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Timeout: 60
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref Table
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt Table.Arn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 10
+
+  Table:
+    Type: AWS::Serverless::SimpleTable
+    ProvisionedThroughput:
+      ReadCapacityUnits: 5
+      WriteCapacityUnits: 5
