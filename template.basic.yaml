@@ -140,7 +140,7 @@ Resources:
         Stream:
           Type: DynamoDB
           Properties:
-            Stream: !GetAtt Table.StreamArn
+            Stream: !GetAtt DynamoDBTable.StreamArn
             StartingPosition: TRIM_HORIZON
 
   DynamoDBTable:
