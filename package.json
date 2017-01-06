@@ -12,6 +12,7 @@
     "aws-sdk": "^2.6.7",
     "gulp": "^3.9.1",
     "gulp-zip": "^3.2.0",
-    "vinyl-fs": "^2.3.1"
+    "vinyl-fs": "^2.3.1",
+    "aws-services-lib": "https://github.com/AlexOugh/aws-services-lib.git#develop"
   }
 }

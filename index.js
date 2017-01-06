@@ -8,7 +8,7 @@ const createResponse = (statusCode, body) => {
 
 exports.check = (event, context, callback) => {
 
-  var aws_config = new (require('./aws-services-lib/aws/awsconfig.js'))();
+  var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
 
   var input = {
     region: event.region,
@@ -32,11 +32,11 @@ exports.check = (event, context, callback) => {
 
 exports.enable = (event, context, callback) => {
 
-  var aws_bucket = new (require('./aws-services-lib/aws/s3bucket.js'))();
-  var aws_topic = new (require('./aws-services-lib/aws/topic.js'))();
-  var aws_role = new (require('./aws-services-lib/aws/role.js'))();
-  var aws_config = new (require('./aws-services-lib/aws/awsconfig.js'))();
-  var aws_lambda = new (require('./aws-services-lib/aws/lambda.js'))();
+  var aws_bucket = new (require('aws-services-lib/aws/s3bucket.js'))();
+  var aws_topic = new (require('aws-services-lib/aws/topic.js'))();
+  var aws_role = new (require('aws-services-lib/aws/role.js'))();
+  var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
+  var aws_lambda = new (require('aws-services-lib/aws/lambda.js'))();
 
   var assumeRolePolicyName = process.env.ASSUME_ROLE_POLICY_NAME;
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
@@ -122,10 +122,10 @@ exports.enable = (event, context, callback) => {
 
 exports.disable = (event, context, callback) => {
 
-  var aws_topic = new (require('./aws-services-lib/aws/topic.js'))();
-  var aws_config = new (require('./aws-services-lib/aws/awsconfig.js'))();
-  var aws_role = new (require('./aws-services-lib/aws/role.js'))();
-  var aws_lambda = new (require('./aws-services-lib/aws/lambda.js'))();
+  var aws_topic = new (require('aws-services-lib/aws/topic.js'))();
+  var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
+  var aws_role = new (require('aws-services-lib/aws/role.js'))();
+  var aws_lambda = new (require('aws-services-lib/aws/lambda.js'))();
 
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
   var topicName = process.env.TOPIC_NAME;
@@ -174,7 +174,7 @@ exports.disable = (event, context, callback) => {
 
 exports.save_alert = function (event, context) {
 
-  var dynamodb = new (require('./aws-services-lib/aws/dynamodb.js'))();
+  var dynamodb = new (require('aws-services-lib/aws/dynamodb.js'))();
 
   // var fs = require("fs");
   //  data = fs.readFileSync(__dirname + '/json/data.json', {encoding:'utf8'});
