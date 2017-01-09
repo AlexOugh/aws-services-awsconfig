@@ -187,3 +187,29 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
+
+Outputs:
+
+    APIURL:
+      Description: "Get endpoint URL for Stage environment"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Stage/awsconfig"
+
+    GetFunctionName:
+      Description: "Get Lambda Function Name"
+      Value: !Ref GetFunction
+
+    PostFunctionName:
+      Description: "Post Lambda Function Name"
+      Value: !Ref PostFunction
+
+    DeleteFunctionName:
+      Description: "Delete Lambda Function Name"
+      Value: !Ref DeleteFunction
+
+    SaveAlertFunctionName:
+      Description: "SaveAlert Lambda Function Name"
+      Value: !Ref SaveAlertFunction
+
+    CodeUri:
+      Description: "S3 URI for Lambda Function Zip File"
+      Value: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
