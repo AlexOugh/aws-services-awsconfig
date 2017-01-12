@@ -63,6 +63,11 @@ Resources:
                       - "s3:ListAllMyBuckets"
                       - "s3:CreateBucket"
                     Resource: "*"
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "sns:AddPermission"
+                    Resource: "arn:aws:sns:*:*:awsconfig-topic"
 
   GetFunction:
     Type: AWS::Serverless::Function
