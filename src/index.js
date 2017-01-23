@@ -1,22 +1,29 @@
 
-const createResponse = (statusCode, body) => {
-  return {
-    statusCode: statusCode,
-    body: body
-  }
-};
+var baseHandler = require('aws-services-lib/lambda/base_handler.js')
 
-exports.check = (event, context, callback) => {
+exports.handler = (event, context) => {
+  baseHandler.handler(event, context);
+}
 
+baseHandler.get = function(params, callback) {
+
+  var AWS = require('aws-sdk');
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
 
-  var input = {
-    region: event.region,
-    creds: event.body
-  };
+  var input = {};
+  if (params.region) input['region'] = params.region;
+  if (params.Credentials) {
+    const creds = JSON.parse(params.Credentials)
+    input['creds'] = new AWS.Credentials({
+      accessKeyId: creds.AccessKeyId,
+      secretAccessKey: creds.SecretAccessKey,
+      sessionToken: creds.SessionToken
+    });
+  }
+  console.log(input)
 
-  function succeeded(input) { callback(null, createResponse(200, true)); }
-  function failed(input) { callback(null, createResponse(200, false)); }
+  function succeeded(input) { callback(null, {result: true}); }
+  function failed(input) { callback(null, {result: false}); }
   function errored(err) { callback(err, null); }
 
   var flows = [
@@ -30,8 +37,9 @@ exports.check = (event, context, callback) => {
   flows[0].func(input);
 };
 
-exports.enable = (event, context, callback) => {
+baseHandler.post = function(params, callback) {
 
+  var AWS = require('aws-sdk');
   var aws_bucket = new (require('aws-services-lib/aws/s3bucket.js'))();
   var aws_topic = new (require('aws-services-lib/aws/topic.js'))();
   var aws_role = new (require('aws-services-lib/aws/role.js'))();
@@ -42,11 +50,11 @@ exports.enable = (event, context, callback) => {
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
   var deliveryChannelName  = process.env.DELIVERY_CHANNEL_NAME;
   var configRecorderName = process.env.CONFIG_RECORDER_NAME;
-  var bucketName = event.account + process.env.BUCKET_NAME_POSTFIX + "." + event.region;
+  var bucketName = params.account + process.env.BUCKET_NAME_POSTFIX + "." + params.region;
   var topicName = process.env.TOPIC_NAME;
   var functionName = process.env.SAVER_FUNCTION_NAME;
   var endpoint = process.env.SAVER_FUNCTION_ARN;
-  var roleName = process.env.ROLE_NAME + "-" + event.region;
+  var roleName = process.env.ROLE_NAME + "-" + params.region;
 
   var fs = require("fs");
   var assumeRolePolicyDocument = fs.readFileSync(__dirname + '/json/' + assumeRolePolicyName + '.json', {encoding:'utf8'});
@@ -55,7 +63,6 @@ exports.enable = (event, context, callback) => {
   console.log(inlinePolicyDocument);
 
   var input = {
-    region: event.region,
     deliveryChannelName : deliveryChannelName,
     configRecorderName : configRecorderName,
     bucketName : bucketName,
@@ -68,7 +75,7 @@ exports.enable = (event, context, callback) => {
     roleNamePostfix: (new Date()).getTime(),
     inlinePolicyName : inlinePolicyName,
     inlinePolicyDocument: inlinePolicyDocument,
-    AccountId: event.federateAccount,
+    AccountId: params.federateAccount,
     roleArn : null,
     topicArn : null,
     sourceArn : null,
@@ -76,6 +83,13 @@ exports.enable = (event, context, callback) => {
     protocol: "lambda",
     endpoint: endpoint
   };
+  if (params.region) input['region'] = params.region;
+  if (params.Credentials) input['creds'] = new AWS.Credentials({
+    accessKeyId: params.Credentials.AccessKeyId,
+    secretAccessKey: params.Credentials.SecretAccessKey,
+    sessionToken: params.Credentials.SessionToken
+  });
+  console.log(input)
 
   function resetAuth(input) {
     input.creds = null;
@@ -120,8 +134,9 @@ exports.enable = (event, context, callback) => {
   flows[0].func(input);
 };
 
-exports.disable = (event, context, callback) => {
+baseHandler.delete = function(params, callback) {
 
+  var AWS = require('aws-sdk');
   var aws_topic = new (require('aws-services-lib/aws/topic.js'))();
   var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
   var aws_role = new (require('aws-services-lib/aws/role.js'))();
@@ -129,12 +144,11 @@ exports.disable = (event, context, callback) => {
 
   var inlinePolicyName = process.env.INLINE_POLICY_NAME;
   var topicName = process.env.TOPIC_NAME;
-  var roleName = process.env.ROLE_NAME + "-" + event.region;
+  var roleName = process.env.ROLE_NAME + "-" + params.region;
   var functionName = process.env.SAVER_FUNCTION_NAME;
   var saveFunctionArn = process.env.SAVER_FUNCTION_ARN;
 
   var input = {
-    region: event.region,
     topicName : topicName,
     roleName : roleName,
     inlinePolicyName : inlinePolicyName,
@@ -143,6 +157,13 @@ exports.disable = (event, context, callback) => {
     protocol: "lambda",
     endpoint: saveFunctionArn
   };
+  if (params.region) input['region'] = params.region;
+  if (params.Credentials) input['creds'] = new AWS.Credentials({
+    accessKeyId: params.Credentials.AccessKeyId,
+    secretAccessKey: params.Credentials.SecretAccessKey,
+    sessionToken: params.Credentials.SessionToken
+  });
+  console.log(input)
 
   function succeeded(input) { callback(null, createResponse(200, true)); }
   function failed(input) { callback(null, createResponse(200, false)); }
@@ -171,67 +192,3 @@ exports.disable = (event, context, callback) => {
 
   flows[0].func(input);
 };
-
-exports.save_alert = function (event, context) {
-
-  var dynamodb = new (require('aws-services-lib/aws/dynamodb.js'))();
-
-  // var fs = require("fs");
-  //  data = fs.readFileSync(__dirname + '/json/data.json', {encoding:'utf8'});
-  //  data_json = JSON.parse(data);
-
-  //  var region=data_json.region;
-
-  console.log(event.Records[0].Sns);
-  var message_json = JSON.parse(event.Records[0].Sns.Message);
-  var region = event.Records[0].EventSubscriptionArn.split(":")[3];
-  var messageId = event.Records[0].Sns.MessageId;
-  var subject = event.Records[0].Sns.Subject;
-  //  var message = message_json.newEvaluationResult;
-  var message = event.Records[0].Sns.Message;
-  var sentBy = event.Records[0].Sns.TopicArn;
-  var sentAt = event.Records[0].Sns.Timestamp;
-  //var awsid = null;
-  var awsid = message_json.awsAccountId;
-  //  var awsids = message_json.Trigger.Dimensions.filter(function(dimension) {
-  //  return dimension.name == 'LinkedAccount';
-  // });
-  //  if (awsids[0])  awsid = awsids[0].value;
-  // else awsid = message_json.AWSAccountId;
-  //  var pattern = /\s{1,}COMPLIANT/;
-  var non_complaint_pattern = /\s{1,}NON_COMPLIANT/;
-
-  if (non_complaint_pattern.test(subject)) {
-
-    console.log("Non_Complaint_Alert_Message_True...Saving in DB.");
-
-    var current = new Date();
-    var item = {
-      "id": {"S": messageId},
-      "awsid": {"S": awsid},
-      "subject": {"S": subject},
-      "message": {"S": message},
-      "sentBy": {"S": sentBy},
-      "sentAt": {"S": sentAt},
-      //"createdAt": {"S": current.toISOString()},
-      //"updatedAt": {"S": current.toISOString()},
-      //"account": {"N": '0'},
-      //"archivedBy": {"S": "none"}
-    }
-    console.log(item);
-
-    var input = {
-      region: region,
-      tableName: process.env.TABLE_NAME,
-      item: item
-    };
-    dynamodb.save(input, function(err, data) {
-      if (err)  callback(err, null);
-      else callback(null, createResponse(200, true));
-    });
-  }
-  else{
-    console.log("Non_Complaint_Alert_Message_False...Ignoring Alert Message.");
-    callback(null, createResponse(200, true));
-  }
-}

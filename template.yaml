@@ -1,7 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: API interfaces and corresponding lambda functions for awsconfig.
+Description: API Interfaces and corresponding Lambda Functions for awsconfig.
 Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      DefinitionUri: ./swagger.yaml
+      StageName: Prod
+      Variables:
+        LambdaFunctionName: !Ref LambdaFunction
+
   LambdaFunctionIAMRole:
       Type: "AWS::IAM::Role"
       Properties:
@@ -69,6 +77,32 @@ Resources:
                       - "sns:AddPermission"
                     Resource: "arn:aws:sns:*:*:awsconfig-topic"
 
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      Timeout: 300
+      Environment:
+        Variables:
+          BUCKET_NAME_POSTFIX: ".awsconfig"
+          TOPIC_NAME: "awsconfig-topic"
+          SAVER_FUNCTION_NAME: !Ref SaveAlertFunction
+          SAVER_FUNCTION_ARN: !GetAtt SaveAlertFunction.Arn
+          ASSUME_ROLE_POLICY_NAME: "awsconfig_assume_role_policy"
+          ROLE_NAME: "awsconfig-setup-role"
+          INLINE_POLICY_NAME: "awsconfig_setup_policy"
+          DELIVERY_CHANNEL_NAME: "default"
+          CONFIG_RECORDER_NAME: "default"
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
   AlertLambdaFunctionIAMRole:
       Type: "AWS::IAM::Role"
       Properties:
@@ -106,74 +140,12 @@ Resources:
                       - "dynamodb:ListStreams"
                     Resource: "*"
 
-  GetFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: index.check
-      Runtime: nodejs4.3
-      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
-      Role: !GetAtt LambdaFunctionIAMRole.Arn
-      Timeout: 60
-      Events:
-        GetResource:
-          Type: Api
-          Properties:
-            Path: /awsconfig
-            Method: get
-
-  PostFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: index.enable
-      Runtime: nodejs4.3
-      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
-      Role: !GetAtt LambdaFunctionIAMRole.Arn
-      Timeout: 60
-      Environment:
-        Variables:
-          BUCKET_NAME_POSTFIX: ".awsconfig"
-          TOPIC_NAME: "awsconfig-topic"
-          SAVER_FUNCTION_NAME: !Ref SaveAlertFunction
-          SAVER_FUNCTION_ARN: !GetAtt SaveAlertFunction.Arn
-          ASSUME_ROLE_POLICY_NAME: "awsconfig_assume_role_policy"
-          ROLE_NAME: "awsconfig-setup-role"
-          INLINE_POLICY_NAME: "awsconfig_setup_policy"
-          DELIVERY_CHANNEL_NAME: "default"
-          CONFIG_RECORDER_NAME: "default"
-      Events:
-        PutResource:
-          Type: Api
-          Properties:
-            Path: /awsconfig
-            Method: post
-
-  DeleteFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: index.disable
-      Runtime: nodejs4.3
-      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
-      Role: !GetAtt LambdaFunctionIAMRole.Arn
-      Timeout: 60
-      Environment:
-        Variables:
-          TOPIC_NAME: "awsconfig-topic"
-          ROLE_NAME: "awsconfig-setup-role"
-          INLINE_POLICY_NAME: "awsconfig_setup_policy"
-          SAVER_FUNCTION_ARN: !GetAtt SaveAlertFunction.Arn
-      Events:
-        DeleteResource:
-          Type: Api
-          Properties:
-            Path: /awsconfig
-            Method: delete
-
   SaveAlertFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.save_alert
+      Handler: index_save.handler
       Runtime: nodejs4.3
-      CodeUri: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip
+      CodeUri: ./src
       Role: !GetAtt AlertLambdaFunctionIAMRole.Arn
       Timeout: 60
       Environment:
@@ -197,24 +169,12 @@ Outputs:
 
     APIURL:
       Description: "Get endpoint URL for Stage environment"
-      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Stage/awsconfig"
+      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
 
-    GetFunctionName:
-      Description: "Get Lambda Function Name"
-      Value: !Ref GetFunction
-
-    PostFunctionName:
-      Description: "Post Lambda Function Name"
-      Value: !Ref PostFunction
-
-    DeleteFunctionName:
-      Description: "Delete Lambda Function Name"
-      Value: !Ref DeleteFunction
+    LambdaFunctionName:
+      Description: "Lambda Function Name"
+      Value: !Ref LambdaFunction
 
     SaveAlertFunctionName:
       Description: "SaveAlert Lambda Function Name"
       Value: !Ref SaveAlertFunction
-
-    CodeUri:
-      Description: "S3 URI for Lambda Function Zip File"
-      Value: s3://sgas.sam.aws-services-awsconfig/awsconfig.zip

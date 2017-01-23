@@ -1,5 +1,5 @@
 {
-  "name": "awsconfig",
+  "name": "awsconfig_src",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "replace": "^0.3.0"
+    "aws-sdk": "^2.6.7",
+    "aws-services-lib": "https://github.com/AlexOugh/aws-services-lib.git#master"
   }
 }
