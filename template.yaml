@@ -100,6 +100,7 @@ Resources:
         GetResource:
           Type: Api
           Properties:
+            RestApiId: !Ref ApiGatewayApi
             Path: /{proxy+}
             Method: ANY
 
@@ -168,13 +169,19 @@ Resources:
 Outputs:
 
     APIURL:
-      Description: "Get endpoint URL for Stage environment"
-      Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+      Description: "URL of your API endpoint"
+      Value: !Join
+        - ''
+        - - https://
+          - !Ref ApiGatewayApi
+          - '.execute-api.'
+          - !Ref 'AWS::Region'
+          - '.amazonaws.com/Prod'
 
-    LambdaFunctionName:
-      Description: "Lambda Function Name"
-      Value: !Ref LambdaFunction
+    LambdaFunction:
+      Description: "Lambda Function ARN"
+      Value: !GetAtt LambdaFunction.Arn
 
-    SaveAlertFunctionName:
-      Description: "SaveAlert Lambda Function Name"
-      Value: !Ref SaveAlertFunction
+    SaveAlertFunction:
+      Description: "SaveAlert Lambda Function ARN"
+      Value: !GetAtt SaveAlertFunction.Arn

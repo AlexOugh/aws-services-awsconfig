@@ -1,23 +1,83 @@
 
-# AWSConfig
 
-AWS Lambda functions to manage the AWSConfig Service
+# Interfaces to Manage AWSConfig
+
+API Gateway and Lambda Function to Manage the AWSConfig Services
 
 ![aws-services][aws-services-image]
 
-## How To Setup
+## How to Send Requests
 
-    $ AWS CodePipeline, 'aws-services-awsconfig'
+The 'Credentials' header doesn't need to be set if the target account is same with the account where this Lambda Function is deployed.
 
+### To check the current status of the services
+```
+const Credentials = {
+  "AccessKeyId": "",
+  "SecretAccessKey": "",
+  "SessionToken": ""
+}
+path: /awsconfig?region=<<region>>
+method : GET
+headers: {
+  "Credentials": JSON.stringify(Credentials),
+}
+```
+### To enable the services
+```
+Credentials = {
+  "AccessKeyId": "",
+  "SecretAccessKey": "",
+  "SessionToken": ""
+}
+path: /awsconfig
+method : POST
+headers: {
+  "Credentials": JSON.stringify(Credentials),
+}
+data:
+{
+  "region": "<<region>>"
+}
+```
+### To disable the services
+```
+Credentials = {
+  "AccessKeyId": "",
+  "SecretAccessKey": "",
+  "SessionToken": ""
+}
+path: /awsconfig
+method : DELETE
+headers: {
+  "Credentials": JSON.stringify(Credentials),
+}
+data:
+{
+  "region": "<<region>>"
+}
+```
 
-## How To Update Lambda Function Codes
+## How To Setup a CodePipeline
 
-    $ ./run_update_codes
-
+Please see here, https://github.com/SungardAS/aws-services-cloudtrail#how-to-setup-a-codepipeline.
 
 ## How To Test Lambda Functions
 
-    $ cd tests
-    $ node test_xxx.js
+- $ cd tests
+- Export necessary environment variables and fill the necessary input values
+- $ node test_xxx.js
 
+## [![Sungard Availability Services | Labs][labs-logo]][labs-github-url]
+
+This project is maintained by the Labs group at [Sungard Availability
+Services](http://sungardas.com)
+
+GitHub: [https://sungardas.github.io](https://sungardas.github.io)
+
+Blog:
+[http://blog.sungardas.com/CTOLabs/](http://blog.sungardas.com/CTOLabs/)
+
+[labs-github-url]: https://sungardas.github.io
+[labs-logo]: https://raw.githubusercontent.com/SungardAS/repo-assets/master/images/logos/sungardas-labs-logo-small.png
 [aws-services-image]: ./docs/images/logo.png?raw=true
