@@ -4,13 +4,13 @@ const Credentials = {
   "SecretAccessKey": "",
   "SessionToken": ""
 };
-const querystr = {
+const body = {
   "region": ""
 };
 
 event = {
   "path": "/awsconfig",
-  "httpMethod": "GET",
+  "httpMethod": "DELETE",
   "headers": {
     "Credentials": JSON.stringify(Credentials),
   },
@@ -20,12 +20,12 @@ event = {
       "principalId": "abcd"
     }
   },
-  "queryStringParameters": querystr
+  "body": JSON.stringify(body)
 }
 
-var i = require('../src/index.js');
-var context = {succeed: res => console.log(res)};
-i.handler(event, context, function(err, data) {
+var i = require('../index.js');
+var context = null;
+i.disable(event, context, function(err, data) {
   if (err)  console.log("failed : " + err);
   else console.log("completed: " + JSON.stringify(data));
 });
