@@ -5,6 +5,7 @@ export TOPIC_NAME=awsconfig-topic
 export ASSUME_ROLE_POLICY_NAME=awsconfig_assume_role_policy
 export ROLE_NAME=awsconfig-setup-role
 export INLINE_POLICY_NAME=awsconfig_setup_policy
+export ROLE_POLICY_ARN=arn:aws:iam::aws:policy/service-role/AWSConfigRole
 export DELIVERY_CHANNEL_NAME=default
 export CONFIG_RECORDER_NAME=default
 */
