@@ -12,15 +12,10 @@ event = {
   "path": "/awsconfig",
   "httpMethod": "GET",
   "headers": {
-    "Credentials": JSON.stringify(Credentials),
+    "Credentials": new Buffer(JSON.stringify(Credentials)).toString('base64')
   },
-  "requestContext": {
-    "authorizer": {
-      "refresh_token": "1234",
-      "principalId": "abcd"
-    }
-  },
-  "queryStringParameters": querystr
+  "queryStringParameters": querystr,
+  "resType": "json"
 }
 
 var i = require('../src/index.js');
