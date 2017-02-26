@@ -8,11 +8,11 @@ API Gateway and Lambda Function to Manage the AWSConfig Services
 
 ## How to Send Requests
 
-The 'Credentials' header doesn't need to be set if the target account is same with the account where this Lambda Function is deployed.
+The 'credentials' header doesn't need to be set if the target account is same with the account where this Lambda Function is deployed.
 
 ### To check the current status of the services
 ```
-const Credentials = {
+const credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -20,12 +20,12 @@ const Credentials = {
 path: /awsconfig?region=<<region>>
 method : GET
 headers: {
-  "Credentials": base64_encoded_Credentials_String,
+  "credentials": base64_encoded_credentials_String,
 }
 ```
 ### To enable the services
 ```
-Credentials = {
+credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -33,7 +33,7 @@ Credentials = {
 path: /awsconfig
 method : POST
 headers: {
-  "Credentials": base64_encoded_Credentials_String,
+  "credentials": base64_encoded_credentials_String,
 }
 data:
 {
@@ -42,7 +42,7 @@ data:
 ```
 ### To disable the services
 ```
-Credentials = {
+credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -50,7 +50,7 @@ Credentials = {
 path: /awsconfig
 method : DELETE
 headers: {
-  "Credentials": base64_encoded_Credentials_String,
+  "credentials": base64_encoded_credentials_String,
 }
 data:
 {
@@ -64,17 +64,33 @@ data:
 
 Input Parameter Values
 
-- CloudformationLambdaExecutionRoleArn: *role_arn* (See <a href="https://s3.amazonaws.com/cloudformation-serverless-codepipeline.us-east-1/roles/role_cloudformation-lambda-execution-role.json">here</a> for Trust Relationships and Policy Document)
-- CodePipelineServiceRoleArn: *role_arn*  (See <a href="https://s3.amazonaws.com/cloudformation-serverless-codepipeline.us-east-1/roles/role_AWS-CodePipeline-Service.json">here</a> for Trust Relationships and Policy Document)
-- CustomAuthorizerIAMRoleName: *custom_authorizer_role_name*  (See <a href="https://s3.amazonaws.com/cloudformation-serverless-codepipeline.us-east-1/roles/role_apigateway-lambda-execution-role.json">here</a> for Trust Relationships and Policy Document)
+- CloudformationLambdaExecutionRoleArn:
+
+  Enter `ARN of IAM Role for Cloudformation to create changesets and target stack`. If you already created one or more CodePipeline that uses Cloudformation, this role should have been created already, so you can use the same role, 'cloudformation-lambda-execution-role'. If not, please create a role with the same name with Trust Relationships and Policy Document defined <a href="https://s3.amazonaws.com/cloudformation-serverless-codepipeline.us-east-1/roles/role_cloudformation-lambda-execution-role.json">here</a>.
+
+- CodePipelineServiceRoleArn:
+
+  Enter `ARN of IAM Role for CodePipeline to be executed`. If you already created one or more CodePipeline, this role should have been created already, so you can use the same role, 'AWS-CodePipeline-Service'. If not, please create a role with the same name with Trust Relationships and Policy Document defined <a href="https://s3.amazonaws.com/cloudformation-serverless-codepipeline.us-east-1/roles/role_AWS-CodePipeline-Service.json">here</a>.
+
+- CustomAuthorizerIAMRoleName:
+
 - CustomAuthorizerLambdaName:
+
 - EncryptionLambdaName:
-- GitHubPersonalAccessToken: *access_token* (See <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use/">here</a> to find how to genernate the access token)
-- GitHubSourceRepositoryBranch: master
-- GitHubSourceRepositoryName: aws-services-awsconfig
-- GitHubSourceRepositoryOwner: SungardAS
+
+- GitHubPersonalAccessToken:
+
+  `Access Token` for CodeBuild to access to the this Github repository. (See <a href="https://help.github.com/articles/creating-an-access-token-for-command-line-use/">here</a> to find how to generate the access token).
+
+- GitHubSourceRepositoryBranch: `master`
+
+- GitHubSourceRepositoryName: `aws-services-awsconfig`
+
+- GitHubSourceRepositoryOwner: `SungardAS`
+
 - ParameterOverrides:
-- ProjectImage: aws/codebuild/nodejs:4.3.2
+
+- ProjectImage: `aws/codebuild/nodejs:4.3.2`
 
 ## How To Test Lambda Functions
 

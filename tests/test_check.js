@@ -1,5 +1,5 @@
 
-const Credentials = {
+const credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -8,14 +8,15 @@ const querystr = {
   "region": ""
 };
 
-event = {
+var event = {
   "path": "/awsconfig",
   "httpMethod": "GET",
   "headers": {
-    "Credentials": new Buffer(JSON.stringify(Credentials)).toString('base64')
+    "credentials": new Buffer(JSON.stringify(credentials)).toString('base64')
   },
   "queryStringParameters": querystr,
-  "resType": "json"
+  "body": {
+  }
 }
 
 var i = require('../src/index.js');

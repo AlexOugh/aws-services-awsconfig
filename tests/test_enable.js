@@ -10,7 +10,7 @@ export DELIVERY_CHANNEL_NAME=default
 export CONFIG_RECORDER_NAME=default
 */
 
-const Credentials = {
+const credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -19,15 +19,16 @@ const body = {
   "region": ""
 };
 
-event = {
+var event = {
   "path": "/awsconfig",
   "httpMethod": "POST",
   "headers": {
-    "Credentials": new Buffer(JSON.stringify(Credentials)).toString('base64')
+    "credentials": new Buffer(JSON.stringify(credentials)).toString('base64')
   },
-  "body": JSON.stringify(body),
-  "resType": "json"
+  "queryStringParameters": null,
+  "body": JSON.stringify(body)
 }
+
 
 var i = require('../src/index.js');
 var context = {succeed: res => console.log(res)};

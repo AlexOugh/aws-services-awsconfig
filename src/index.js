@@ -12,11 +12,11 @@ baseHandler.get = function(params, callback) {
 
   var input = {};
   if (params.region) input['region'] = params.region;
-  if (params.Credentials) {
+  if (params.credentials) {
     input['creds'] = new AWS.Credentials({
-      accessKeyId: params.Credentials.AccessKeyId,
-      secretAccessKey: params.Credentials.SecretAccessKey,
-      sessionToken: params.Credentials.SessionToken
+      accessKeyId: params.credentials.AccessKeyId,
+      secretAccessKey: params.credentials.SecretAccessKey,
+      sessionToken: params.credentials.SessionToken
     });
   }
   console.log(input)
@@ -76,11 +76,11 @@ baseHandler.post = function(params, callback) {
     inlinePolicyDoc : null
   };
   input['region'] = params.region;
-  if (params.Credentials) {
+  if (params.credentials) {
     input['creds'] = new AWS.Credentials({
-      accessKeyId: params.Credentials.AccessKeyId,
-      secretAccessKey: params.Credentials.SecretAccessKey,
-      sessionToken: params.Credentials.SessionToken
+      accessKeyId: params.credentials.AccessKeyId,
+      secretAccessKey: params.credentials.SecretAccessKey,
+      sessionToken: params.credentials.SessionToken
     });
   }
 
@@ -143,11 +143,11 @@ baseHandler.delete = function(params, callback) {
   var input = {
   };
   if (params.region) input['region'] = params.region;
-  if (params.Credentials) {
+  if (params.credentials) {
     input['creds'] = new AWS.Credentials({
-      accessKeyId: params.Credentials.AccessKeyId,
-      secretAccessKey: params.Credentials.SecretAccessKey,
-      sessionToken: params.Credentials.SessionToken
+      accessKeyId: params.credentials.AccessKeyId,
+      secretAccessKey: params.credentials.SecretAccessKey,
+      sessionToken: params.credentials.SessionToken
     });
   }
   console.log(input)
