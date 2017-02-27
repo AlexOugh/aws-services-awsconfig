@@ -8,11 +8,11 @@ API Gateway and Lambda Function to Manage the AWSConfig Services
 
 ## How to Send Requests
 
-The 'credentials' header doesn't need to be set if the target account is same with the account where this Lambda Function is deployed.
+The 'Credentials' header doesn't need to be set if the target account is same with the account where this Lambda Function is deployed.
 
 ### To check the current status of the services
 ```
-const credentials = {
+const Credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -20,12 +20,12 @@ const credentials = {
 path: /awsconfig?region=<<region>>
 method : GET
 headers: {
-  "credentials": base64_encoded_credentials_String,
+  "Credentials": base64_encoded_Credentials_String,
 }
 ```
 ### To enable the services
 ```
-credentials = {
+Credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -33,7 +33,7 @@ credentials = {
 path: /awsconfig
 method : POST
 headers: {
-  "credentials": base64_encoded_credentials_String,
+  "Credentials": base64_encoded_Credentials_String,
 }
 data:
 {
@@ -42,7 +42,7 @@ data:
 ```
 ### To disable the services
 ```
-credentials = {
+Credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -50,7 +50,7 @@ credentials = {
 path: /awsconfig
 method : DELETE
 headers: {
-  "credentials": base64_encoded_credentials_String,
+  "Credentials": base64_encoded_Credentials_String,
 }
 data:
 {

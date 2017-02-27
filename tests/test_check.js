@@ -1,5 +1,5 @@
 
-const credentials = {
+const Credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -12,7 +12,7 @@ var event = {
   "path": "/awsconfig",
   "httpMethod": "GET",
   "headers": {
-    "credentials": new Buffer(JSON.stringify(credentials)).toString('base64')
+    "Credentials": new Buffer(JSON.stringify(Credentials)).toString('base64')
   },
   "queryStringParameters": querystr,
   "body": {

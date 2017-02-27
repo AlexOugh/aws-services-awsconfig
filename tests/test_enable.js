@@ -10,7 +10,7 @@ export DELIVERY_CHANNEL_NAME=default
 export CONFIG_RECORDER_NAME=default
 */
 
-const credentials = {
+const Credentials = {
   "AccessKeyId": "",
   "SecretAccessKey": "",
   "SessionToken": ""
@@ -23,7 +23,7 @@ var event = {
   "path": "/awsconfig",
   "httpMethod": "POST",
   "headers": {
-    "credentials": new Buffer(JSON.stringify(credentials)).toString('base64')
+    "Credentials": new Buffer(JSON.stringify(Credentials)).toString('base64')
   },
   "queryStringParameters": null,
   "body": JSON.stringify(body)
